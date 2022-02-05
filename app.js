@@ -8,17 +8,18 @@ const { options } = require("request");
 
 const app = express();
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
-app.get("/",function(req,res){
-    res.sendFile(__dirname+"/signup.html");
+app.get("/", function (req, res) {
+    res.sendFile(__dirname + "/signup.html");
 })
 
-app.post("/",function(req,res){
-    const f_name=req.body.fname;
-    const l_name=req.body.lname;
-    const email=req.body.email;
+
+app.post("/", function (req, res) {
+    const f_name = req.body.fname;
+    const l_name = req.body.lname;
+    const email = req.body.email;
     const data = {
         members: [
             {
@@ -27,19 +28,26 @@ app.post("/",function(req,res){
                 merge_fields: {
                     FNAME: f_name,
                     LNAME: l_name
-                } 
+                }
             }
         ]
     };
-    const jsonData=JSON.stringify(data);
+    const jsonData = JSON.stringify(data);
     const url = "https://us14.api.mailchimp.com/3.0/lists/3d0ce7a328";
     const options = {
         method: "POST",
         auth: "Arshdeep:daf48eb8ad083bf2b8e15a28d13f751f-us14"
     }
-    
-    const request = https.request(url,options,function(response){
-        response.on("data",function(data){
+
+    const request =  https.request(url, options, function (response) {
+        if (response.statusCode === 200) {
+            res.sendFile(__dirname+"/sucess.html");
+        }
+        else {
+            res.sendFile(__dirname+"/failure.html");
+        }
+
+        response.on("data", function (data) {
             console.log(JSON.parse(data));
         })
     })
@@ -48,7 +56,12 @@ app.post("/",function(req,res){
 
 })
 
-app.listen(3000,function(){
+
+app.post("/failure", function (req, res) {
+    res.redirect("/");
+});
+
+app.listen(3000, function () {
     console.log("server running on port 3000")
 })
 
